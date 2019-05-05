@@ -92,7 +92,7 @@ namespace ConsoleApplication
                     return;
                 }
 
-                MergeList(ls, rs, keySelector, merger, MergeType.Inner);
+                MergeList(ls, rs, keySelector, merger, MergeInner);
                 setter.Invoke(L, ls);
             });
         }
@@ -122,7 +122,7 @@ namespace ConsoleApplication
                 if (ls?.Any() != true) return;
                 if (rs?.Any() != true) return;
 
-                MergeList(ls, rs, keySelector, merger, MergeType.Left);
+                MergeList(ls, rs, keySelector, merger, MergeLeft);
                 setter.Invoke(L, ls);
             });
         }
@@ -163,7 +163,7 @@ namespace ConsoleApplication
                 if (ls == null)
                     ls = new TProp();
 
-                MergeList(ls, rs, keySelector, merger, MergeType.Right);
+                MergeList(ls, rs, keySelector, merger, MergeRight);
                 setter.Invoke(L, ls);
             });
         }
@@ -196,7 +196,7 @@ namespace ConsoleApplication
                 if (ls == null)
                     ls = new TProp();
 
-                MergeList(ls, rs, keySelector, merger, MergeType.Full);
+                MergeList(ls, rs, keySelector, merger, MergeFull);
                 setter.Invoke(L, ls);
             });
         }
@@ -209,40 +209,21 @@ namespace ConsoleApplication
             IList<TValue> rs,
             Func<TValue, TKey> keySelector,
             Merger<TValue> merger,
-            MergeType type)
+            Func<Dictionary<TKey, TValue>, Dictionary<TKey, TValue>, Merger<TValue>, IList<TValue>> impl)
             where TValue : new()
         {
-            var hasKey = keySelector != null;
-            var lmap0 = hasKey ? null : ls.Select((v, i) => (v, i)).ToDictionary(t => t.i, t => t.v);
-            var rmap0 = hasKey ? null : rs.Select((v, i) => (v, i)).ToDictionary(t => t.i, t => t.v);
-            var lmap1 = hasKey ? ls.ToDictionary(keySelector) : null;
-            var rmap1 = hasKey ? rs.ToDictionary(keySelector) : null;
+            var lmap = getMap(ls);
+            var rmap = getMap(rs);
+            var values = impl.Invoke(lmap, rmap, merger);
 
-            Func<MergeType, IList<TValue>> merge0 = t => {
-                switch (t)
-                {
-                    case MergeType.Inner:    return MergeInner(lmap0, rmap0, merger);
-                    case MergeType.Left:     return MergeLeft(lmap0, rmap0, merger);
-                    case MergeType.Right:    return MergeRight(lmap0, rmap0, merger);
-                    case MergeType.Full:     return MergeFull(lmap0, rmap0, merger);
-                }
-                return null;
-            };
-            Func<MergeType, IList<TValue>> merge1 = t => {
-                switch (t)
-                {
-                    case MergeType.Inner:    return MergeInner(lmap1, rmap1, merger);
-                    case MergeType.Left:     return MergeLeft(lmap1, rmap1, merger);
-                    case MergeType.Right:    return MergeRight(lmap1, rmap1, merger);
-                    case MergeType.Full:     return MergeFull(lmap1, rmap1, merger);
-                }
-                return null;
-            };
-
-            var vs = hasKey ? merge1(type) : merge0(type);
             ls.Clear();
-            foreach (var v in vs)
+            foreach (var v in values)
                 ls.Add(v);
+
+            Dictionary<TKey, TValue> getMap(IList<TValue> list) =>
+                keySelector != null
+                    ? list.ToDictionary(keySelector)
+                    : list.Select((v, i) => (v, i)).ToDictionary(t => t.i, t => t.v) as Dictionary<TKey, TValue>;
         }
 
         private IList<TValue> MergeInner<TKey, TValue>(
@@ -358,17 +339,6 @@ namespace ConsoleApplication
             Actions.Add(a);
 
             return this;
-        }
-    }
-
-    public partial class Merger<T>
-    {
-        private enum MergeType
-        {
-            Inner = 0,
-            Left,
-            Right,
-            Full,
         }
     }
 }
