@@ -12,129 +12,98 @@ namespace ConsoleApplication
     {
         public static void Main()
         {
-            var la = new Approval {
-                Id = 87,
-                TotalAmount = 111m,
-                Period = 94,
-                Str1 = "la.Str1",
-                Int1 = 9991111,
-                Quota = null,
-                Quotas = new List<Quota>{
-                    new Quota {
+            var lm = new ModelL {
+                Id = 42,
+                Str1 = "L.Str1",
+                Str2 = "L.Str2",
+                M = null,
+                Ms = new List<ModelM> {
+                    new ModelM {
                         Id = 1,
-                        Str1 = "Quota-L1.1",
-                        Str2 = "Quota-L1.2",
+                        Str1 = "L.Ms[0,1].Str1",
+                        Str2 = "L.Ms[0,1].Str2",
                     },
-                    new Quota {
+                    new ModelM {
                         Id = 2,
-                        Str1 = "Quota-L2.1",
-                        Str2 = "Quota-L2.2",
+                        Str1 = "L.Ms[1,2].Str1",
+                        Str2 = "L.Ms[1,2].Str2",
                     },
-                    new Quota {
+                    new ModelM {
                         Id = 3,
-                        Str1 = "Quota-L3.1",
-                        Str2 = "Quota-L3.2",
+                        Str1 = "L.Ms[2,3].Str1",
+                        Str2 = "L.Ms[2,3].Str2",
                     },
                 },
             };
-            var ra = new Approval {
-                Id = 87,
-                TotalAmount = 222m,
-                Period = 22,
-                Str1 = "StrValue1",
-                Str2 = "StrValue2",
-                Str3 = "StrValue3",
-                Int1 = 1,
-                Int2 = 2,
-                Int3 = 3,
-                Quota = new Quota {
-                    Str1 = "QuotaStr1",
-                    Str2 = "QuotaStr2",
-                    Dec1 = 948701m,
-                    Dec2 = 948702m,
-                    Rate = new Rate {
-                        Annual = 2.22m,
+            var rm = new ModelL {
+                Id = 42,
+                Str1 = "R.Str1",
+                Str2 = "R.Str2",
+                M = new ModelM {
+                    Str1 = "R.M.Str1",
+                    Str2 = "R.M.Str2",
+                    S = new ModelS {
+                        Int1 = 99,
                     },
                 },
-                Quotas = new List<Quota>{
-                    new Quota {
+                Ms = new List<ModelM> {
+                    new ModelM {
                         Id = 2,
-                        Str1 = "Quota-R2.1",
-                        Str2 = "Quota-R2.2",
-                        Dec1 = 9902m,
+                        Str1 = "R.Ms[0,2].Str1",
+                        Str2 = "R.Ms[0,2].Str2",
                     },
-                    new Quota {
+                    new ModelM {
                         Id = 3,
-                        Str1 = "Quota-R3.1",
-                        Str2 = "Quota-R3.2",
-                        Dec1 = 9903m,
+                        Str1 = "R.Ms[1,3].Str1",
+                        Str2 = "R.Ms[1,3].Str2",
                     },
-                    new Quota {
+                    new ModelM {
                         Id = 4,
-                        Str1 = "Quota-R4.1",
-                        Str2 = "Quota-R4.2",
-                        Dec1 = 9904m,
+                        Str1 = "R.Ms[2,4].Str1",
+                        Str2 = "R.Ms[2,4].Str2",
                     },
                 },
             };
 
-            var mergerQ = Merger<Quota>.Create()
+            var mergerS = Merger<ModelS>.Create()
+                .Prop(_ => _.Int1)
+                .Prop(_ => _.Int2);
+
+            var mergerM = Merger<ModelM>.Create()
                 .Prop(_ => _.Id)
                 .Prop(_ => _.Str1)
                 .Prop(_ => _.Str2)
-                .Prop(_ => _.Dec1)
-                .Prop(_ => _.Dec2)
-                .Prop(_ => _.Rate, Merger<Rate>.Create()
-                    .Prop(_ => _.Annual));
+                .Prop(_ => _.S, mergerS);
 
-            var merger = Merger<Approval>.Create()
-                .Prop(_ => _.TotalAmount)
-                .Prop(_ => _.Period)
+            var mergerL = Merger<ModelL>.Create()
                 .Prop(_ => _.Str1)
                 .Prop(_ => _.Str2)
-                .Prop(_ => _.Str3)
-                .Prop(_ => _.Int1)
-                .Prop(_ => _.Int2)
-                .Prop(_ => _.Int3)
-                .Prop(_ => _.Quota, mergerQ)
-                .PropFull(_ => _.Quotas, _ => _.Id, mergerQ);
-
-            Action test = () => {
-                merger.Merge(ref la, ra);
-            };
+                .Prop(_ => _.M, mergerM)
+                .PropFull(_ => _.Ms, _ => _.Id, mergerM);
 
             Benchmark.Run(test, 10000);
 
-            Console.WriteLine(la.TotalAmount);
-            Console.WriteLine(la.Period);
-            Console.WriteLine(la.Str1);
-            Console.WriteLine(la.Str2);
-            Console.WriteLine(la.Str3);
-            Console.WriteLine(la.Int1);
-            Console.WriteLine(la.Int2);
-            Console.WriteLine(la.Int3);
+            Console.WriteLine(lm.Str1);
+            Console.WriteLine(lm.Str2);
+            Console.WriteLine(lm.M?.Str1);
+            Console.WriteLine(lm.M?.Str2);
+            Console.WriteLine(lm.M?.S?.Int1);
+            if (lm.Ms.Count > 0) showM(lm.Ms[0]);
+            if (lm.Ms.Count > 1) showM(lm.Ms[1]);
+            if (lm.Ms.Count > 2) showM(lm.Ms[2]);
+            if (lm.Ms.Count > 3) showM(lm.Ms[3]);
+            if (lm.Ms.Count > 4) showM(lm.Ms[4]);
+            if (lm.Ms.Count > 5) showM(lm.Ms[5]);
 
-            Console.WriteLine(la.Quota?.Str1);
-            Console.WriteLine(la.Quota?.Str2);
-            Console.WriteLine(la.Quota?.Dec1);
-            Console.WriteLine(la.Quota?.Dec2);
+            void test() => mergerL.Merge(ref lm, rm);
 
-            Console.WriteLine(la.Quota?.Rate?.Annual);
-
-            Action<Quota> showQuota = q => {
-                Console.WriteLine("..Quota..");
-                Console.WriteLine(q.Id);
-                Console.WriteLine(q.Str1);
-                Console.WriteLine(q.Str2);
-                Console.WriteLine(q.Dec1);
+            void showM(ModelM m)
+            {
+                Console.WriteLine("..ModelM..");
+                Console.WriteLine(m.Id);
+                Console.WriteLine(m.Str1);
+                Console.WriteLine(m.Str2);
             };
-
-            if (la.Quotas.Count > 0) showQuota(la.Quotas[0]);
-            if (la.Quotas.Count > 1) showQuota(la.Quotas[1]);
-            if (la.Quotas.Count > 2) showQuota(la.Quotas[2]);
-            if (la.Quotas.Count > 3) showQuota(la.Quotas[3]);
-            if (la.Quotas.Count > 4) showQuota(la.Quotas[4]);
-            if (la.Quotas.Count > 5) showQuota(la.Quotas[5]);
         }
     }
 }
