@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace ConsoleApplication
+namespace Application
 {
     public static class Program
     {
