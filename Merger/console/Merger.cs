@@ -15,6 +15,14 @@ namespace ConsoleApplication
             };
         }
 
+        public T Merge(T l, T r)
+        {
+            if (l == null || r == null)
+                return l;
+
+            return Merge(ref l , r);
+        }
+
         public T Merge(ref T l, T r)
         {
             if (r == null)
