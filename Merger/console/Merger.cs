@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace ConsoleApplication
 {
@@ -45,9 +46,30 @@ namespace ConsoleApplication
 
         public Merger<T> Prop<TProp>(Expression<Func<T, TProp>> expr)
         {
-            Actions.Add(GetSetAction(expr));
+            var type = typeof(TProp);
+            var innerType = type.GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>))
+                ?.GetGenericArguments()
+                .SingleOrDefault();
 
-            return this;
+            var isValueType = isValueTypeLike(type);
+            var isCollectionOfValueType = isValueTypeLike(innerType);
+
+            if (!(isValueType || isCollectionOfValueType))
+                throw new ArgumentException(
+                    "Support only string, ValueType, ICollection<string>, ICollection<ValueType>.");
+
+            if (isValueType)
+                return AddAction(GetSetAction(expr));
+
+            var setterMaker = typeof(Merger<T>)
+                .GetMethod(nameof(GetSetActionForCollection), BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(type, innerType);
+
+            return AddAction((Action)setterMaker.Invoke(this, new[] { expr }));
+
+            bool isValueTypeLike(Type t) =>
+                t != null && (t.IsValueType || t == typeof(string));
         }
 
         public Merger<T> Prop<TProp>(Expression<Func<T, TProp>> expr, Merger<TProp> merger)
@@ -323,6 +345,41 @@ namespace ConsoleApplication
         private T R { get; set; }
 
         private List<Action> Actions { get; set; }
+
+        private Action GetSetActionForCollection<TProp, TItem>(Expression<Func<T, TProp>> expr)
+        {
+            var setL = ExpressionHelper.CreateSetter(expr);
+            Func<TProp> cloneR = () => {
+                var r = ExpressionHelper.GetValue(expr, R);
+                var clone = default(TProp);
+
+                if (r == default)
+                    return clone;
+
+                if (typeof(TProp).IsArray)
+                {
+                    var ra = r as TItem[];
+                    clone = (TProp)Activator.CreateInstance(typeof(TProp), ra.Length);
+
+                    var ca = clone as TItem[];
+                    for (int i = 0; i < ra.Length; ++i)
+                        ca[i] = ra[i];
+                }
+                else
+                {
+                    var rc = r as ICollection<TItem>;
+                    clone = Activator.CreateInstance<TProp>();
+
+                    var cc = clone as ICollection<TItem>;
+                    foreach (var x in rc)
+                        cc.Add(x);
+                }
+
+                return clone;
+            };
+
+            return () => setL(L, cloneR());
+        }
 
         private Action GetSetAction<TProp>(Expression<Func<T, TProp>> expr)
         {
