@@ -19,7 +19,7 @@ namespace ConsoleApplication
         {
             if (r == null)
             {
-                l = default(T);
+                l = default;
                 return l;
             }
             if (l == null)
@@ -27,8 +27,8 @@ namespace ConsoleApplication
                 l = new T();
             }
 
-            this.L = l;
-            this.R = r;
+            L = l;
+            R = r;
 
             Actions.ForEach(x => x.Invoke());
 
