@@ -11,6 +11,19 @@ namespace ConsoleApplication.Validator.Extensions
 {
     public static class RuleExtensions
     {
+        public static IRuleBuilderOptions<T, IEnumerable<TItem>> Count<T, TItem>(
+            this IRuleBuilder<T, IEnumerable<TItem>> ruleBuilder,
+            int min,
+            int max)
+        {
+            return ruleBuilder
+                .Must(x => {
+                    var c = x?.Count() ?? 0;
+                    return min <= c && c <= max;
+                })
+                .WithMessage($"'{{PropertyName}}' 數量必須介於 {min} 與 {max}之間。");
+        }
+
         public static IRuleBuilderOptions<T, string> CustomName<T>(
             this IRuleBuilder<T, string> ruleBuilder)
         {
