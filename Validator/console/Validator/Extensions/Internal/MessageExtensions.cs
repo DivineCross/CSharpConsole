@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using FluentValidation.Results;
-using FluentValidation.Validators;
-
 namespace ConsoleApplication.Validator.Extensions.Internal
 {
     public static class MessageExtensions
