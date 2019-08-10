@@ -1,38 +1,80 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace ConsoleApplication
 {
+    public enum WorldStatus
+    {
+        New,
+        Growing,
+        Destroyed,
+    }
+
+    public enum Element
+    {
+        Fire,
+        Air,
+        Water,
+        Earth,
+    }
+
+    public class World
+    {
+        [DisplayName("世界狀態")]
+        public WorldStatus Status { get; set; }
+
+        [DisplayName("人口")]
+        public int? Capacity { get; set; }
+
+        [DisplayName("質量")]
+        public int? Mass { get; set; }
+
+        [DisplayName("統治者")]
+        public Person Ruler { get; set; }
+
+        [DisplayName("巫師")]
+        public List<Person> Wizards { get; set; }
+
+        public bool IsNew => Status == WorldStatus.New;
+    }
+
     public class Person
     {
         [DisplayName("編號")]
         public int Id { get; set; }
 
-        [DisplayName("名")]
-        public string FirstName { get; set; }
-
-        [DisplayName("姓")]
-        public string LastName { get; set; }
+        [DisplayName("名字")]
+        public string Name { get; set; }
 
         [DisplayName("年齡")]
-        public decimal? Age { get; set; }
+        public int? Age { get; set; }
 
-        [DisplayName("體重")]
-        public decimal? Weight { get; set; }
+        [DisplayName("討伐數")]
+        public int? KillCount { get; set; }
 
-        [DisplayName("存款")]
-        public decimal? Balance { get; set; }
+        [DisplayName("魔力量")]
+        public decimal? Mana { get; set; }
 
-        [DisplayName("小名們")]
+        [DisplayName("元素別")]
+        public Element? Element { get; set; }
+
+        [DisplayName("力量(火)")]
+        public int? Str { get; set; }
+
+        [DisplayName("敏捷(風)")]
+        public int? Dex { get; set; }
+
+        [DisplayName("智慧(水)")]
+        public int? Int { get; set; }
+
+        [DisplayName("體力(地)")]
+        public int? Vit { get; set; }
+
+        [DisplayName("小名")]
         public List<string> Nicknames { get ; set; }
 
-        [DisplayName("寵物們")]
+        [DisplayName("寵物")]
         public List<Pet> Pets { get ; set; }
-
-        [DisplayName("朋友們")]
-        public List<Person> Friends { get; set; }
     }
 
     public class Pet
@@ -40,13 +82,10 @@ namespace ConsoleApplication
         [DisplayName("編號")]
         public int Id { get; set; }
 
-        [DisplayName("寵物的名字")]
+        [DisplayName("寵物名字")]
         public string Name { get; set; }
 
-        [DisplayName("寵物的年齡")]
-        public decimal? Age { get; set; }
-
-        [DisplayName("寵物的朋友們")]
-        public List<Person> Friends { get; set; }
+        [DisplayName("寵物年齡")]
+        public int? Age { get; set; }
     }
 }

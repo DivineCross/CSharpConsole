@@ -9,13 +9,12 @@ namespace ConsoleApplication.Validator
         public PetValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty();
+                .NotEmpty()
+                .Length(2, 8);
 
             RuleFor(x => x.Age)
-                .NotEmpty();
-
-            RuleFor(x => x.Friends)
-                .CustomEach(new PersonValidatorBase());
+                .NotNull()
+                .InclusiveBetween(0, 9);
         }
     }
 }

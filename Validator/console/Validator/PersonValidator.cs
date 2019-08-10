@@ -8,35 +8,41 @@ namespace ConsoleApplication.Validator
     {
         public PersonValidatorBase()
         {
-            RuleFor(x => x.FirstName)
-                .CustomName();
+            RuleFor(x => x.Name)
+                .Length(1, 10);
 
-            When(x => x.FirstName != null, () => {
-                RuleFor(x => x.LastName)
-                    .CustomName();
-            }).Otherwise(() => {
-                RuleFor(x => x.LastName)
-                    .CustomName();
-            });
+            RuleFor(x => x.Age)
+                .InclusiveBetween(0, 99);
+
+            RuleFor(x => x.KillCount)
+                .InclusiveBetween(0, 999);
+
+            RuleFor(x => x.Mana)
+                .InclusiveBetween(0, 9999)
+                .ScalePrecision(2, 6, true);
+
+            RuleFor(x => x.Str)
+                .InclusiveBetween(0, 99);
+
+            RuleFor(x => x.Dex)
+                .InclusiveBetween(0, 99);
+
+            RuleFor(x => x.Int)
+                .InclusiveBetween(0, 99);
+
+            RuleFor(x => x.Vit)
+                .InclusiveBetween(0, 99);
+
+            Nicknames();
         }
-    }
 
-    public class PersonValidatorAdvanced : PersonValidatorBase
-    {
-        public PersonValidatorAdvanced() : base()
+        private void Nicknames()
         {
-            RuleFor(x => x.FirstName)
-                .NotEmpty();
-
-            RuleFor(x => x.LastName)
-                .NotEmpty();
+            RuleFor(x => x.Nicknames)
+                .Count(0, 5);
 
             RuleForEach(x => x.Nicknames)
-                .NotEmpty();
-
-            RuleFor(x => x.Pets)
-                .CustomEach(new PetValidator())
-                .When(x => x.Pets.Count > 2);
+                .Length(2, 10);
         }
     }
 }
