@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ConsoleApplication
@@ -8,7 +7,6 @@ namespace ConsoleApplication
     {
         public static void Run(Action task, int reps)
         {
-            Dictionary<string, string> d = new Dictionary<string, string>();
             var watch = Stopwatch.StartNew();
             for (int i = 0; i < reps; ++i)
                 task.Invoke();

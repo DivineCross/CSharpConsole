@@ -22,8 +22,6 @@ namespace ConsoleApplication
 
             // 'x'.Member
             var memberExprExpr = memberExpr.Expression;
-            // x.'Member'
-            var member = memberExpr.Member;
 
             if (paramExpr != memberExprExpr) return null;
 

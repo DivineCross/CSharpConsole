@@ -8,15 +8,19 @@ namespace ConsoleApplication
         public static TValue Get<TKey, TValue>(
             this IDictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default(TValue))
         {
-            TValue value;
-            return key == null ? defaultValue : dict.TryGetValue(key, out value) ? value : defaultValue;
+            if (key == null)
+                return defaultValue;
+
+            return dict.TryGetValue(key, out var value) ? value : defaultValue;
         }
 
         public static TValue Get<TKey, TValue>(
             this IReadOnlyDictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default(TValue))
         {
-            TValue value;
-            return key == null ? defaultValue : dict.TryGetValue(key, out value) ? value : defaultValue;
+            if (key == null)
+                return defaultValue;
+
+            return dict.TryGetValue(key, out var value) ? value : defaultValue;
         }
 
         public static void ShowKeyValues<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> pairs)
